@@ -1,0 +1,12 @@
+package com.tejas.Secure_Document_Management_System.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class ApiResponse {
+
+    private boolean success;
+    private String message;
+}
