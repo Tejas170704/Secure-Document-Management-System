@@ -1,4 +1,4 @@
-package com.tejas.Secure_Document_Management_System.dto.response;
+package com.Tejas.Secure_Document_Management_System.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

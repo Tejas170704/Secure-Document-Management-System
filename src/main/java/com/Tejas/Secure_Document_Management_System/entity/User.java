@@ -1,14 +1,20 @@
-package com.tejas.Secure_Document_Management_System.entity;
+package com.Tejas.Secure_Document_Management_System.entity;
 
-import com.tejas.Secure_Document_Management_System.enums.Role;
+import java.util.List;
 
+import com.Tejas.Secure_Document_Management_System.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,4 +46,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL , fetch =FetchType.LAZY, orphanRemoval =true)
+    private List<Document> documents;
 }
