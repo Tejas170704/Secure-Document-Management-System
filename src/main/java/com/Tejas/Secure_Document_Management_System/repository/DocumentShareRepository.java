@@ -15,6 +15,11 @@ import com.Tejas.Secure_Document_Management_System.entity.User;
 @Repository
 public interface DocumentShareRepository
         extends JpaRepository<DocumentShare, Long> {
+     
+     // Shared By Me
+    Page<DocumentShare> findByDocumentOwner(
+            User owner,
+            Pageable pageable);
 
     // Shared With Me
     Page<DocumentShare> findBySharedWithUser(
