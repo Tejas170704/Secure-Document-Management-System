@@ -354,7 +354,7 @@ public Page<Document> getSharedWithMe(
                     user,
                     pageable);
 
-    return shares.map(DocumentShare::getDocument);
+    return shares.map(share -> share.getDocument());
 }
 
 @Override
@@ -363,10 +363,25 @@ public Page<Document> getSharedDocuments(
         int size,
         String sortBy) {
 
-    return getSharedWithMe(
+    Authentication authentication =
+            SecurityContextHolder.getContext().getAuthentication();
+
+    User user = userRepository
+            .findByEmail(authentication.getName())
+            .orElseThrow(() ->
+                    new RuntimeException("User not found"));
+
+    Pageable pageable = PageRequest.of(
             page,
             size,
-            sortBy);
+            Sort.by(sortBy).descending());
+
+    Page<DocumentShare> shares =
+            documentShareRepository.findByDocumentOwner(
+                    user,
+                    pageable);
+
+    return shares.map(share -> share.getDocument());
 }
 
 @Override

@@ -1,18 +1,32 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import { Link, useNavigate } from "react-router-dom";
+
+import authService from "../services/authService";
 
 function Login() {
 
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = async (event) => {
+
+    const handleChange = (event) => {
+
+        setFormData({
+            ...formData,
+            [event.target.name]: event.target.value,
+        });
+
+    };
+
+
+    const handleSubmit = async (event) => {
 
         event.preventDefault();
 
@@ -21,37 +35,55 @@ function Login() {
 
         try {
 
-            const response = await api.post("/auth/login", {
-                email: email,
-                password: password
-            });
+            const data = await authService.login(formData);
 
-            console.log("Login response:", response.data);
+            console.log("Login response:", data);
 
-            // Save JWT
+            // Validate token
+            if (!data?.token) {
+
+                setError(
+                    "Login failed: authentication token was not received."
+                );
+
+                return;
+            }
+
+
+            // Store authentication information
             localStorage.setItem(
                 "token",
-                response.data.token
+                data.token
             );
 
-            // Save user email
-            if (response.data.email) {
-                localStorage.setItem(
-                    "email",
-                    response.data.email
-                );
-            }
+            localStorage.setItem(
+                "email",
+                data.email
+            );
 
-            // Save user role
-            if (response.data.role) {
-                localStorage.setItem(
-                    "role",
-                    response.data.role
-                );
-            }
+            localStorage.setItem(
+                "role",
+                data.role
+            );
 
-            // Redirect based on role
-            if (response.data.role === "ADMIN") {
+
+            console.log(
+                "Login successful"
+            );
+
+            console.log(
+                "Email:",
+                data.email
+            );
+
+            console.log(
+                "Role:",
+                data.role
+            );
+
+
+            // Redirect according to role
+            if (data.role === "ADMIN") {
 
                 navigate("/admin");
 
@@ -63,82 +95,115 @@ function Login() {
 
         } catch (error) {
 
-            console.error("Login failed:", error);
-
-            setError(
-                error.response?.data?.message ||
-                "Invalid email or password"
+            console.error(
+                "Login error:",
+                error
             );
+
+
+            if (error.response?.status === 401) {
+
+                setError(
+                    "Invalid email or password."
+                );
+
+            } else if (error.response?.data?.message) {
+
+                setError(
+                    error.response.data.message
+                );
+
+            } else {
+
+                setError(
+                    "Unable to login. Please check the backend."
+                );
+
+            }
 
         } finally {
 
             setLoading(false);
+
         }
     };
 
+
     return (
-        <div>
 
-            <h1>Secure Document Management System</h1>
+        <div className="auth-container">
 
-            <h2>Login</h2>
+            <div className="auth-card">
 
-            <form onSubmit={handleLogin}>
+                <h1>
+                    Secure Document Management
+                </h1>
 
-                <div>
+                <h2>
+                    Login
+                </h2>
 
-                    <label>Email</label>
 
-                    <br />
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
+
+
+                <form onSubmit={handleSubmit}>
+
+                    <label>
+                        Email
+                    </label>
 
                     <input
                         type="email"
-                        value={email}
-                        onChange={(event) =>
-                            setEmail(event.target.value)
-                        }
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
                         placeholder="Enter email"
                         required
                     />
 
-                </div>
 
-                <br />
-
-                <div>
-
-                    <label>Password</label>
-
-                    <br />
+                    <label>
+                        Password
+                    </label>
 
                     <input
                         type="password"
-                        value={password}
-                        onChange={(event) =>
-                            setPassword(event.target.value)
-                        }
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
                         placeholder="Enter password"
                         required
                     />
 
-                </div>
 
-                <br />
+                    <button
+                        type="submit"
+                        disabled={loading}
+                    >
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                >
-                    {loading ? "Logging in..." : "Login"}
-                </button>
+                        {loading
+                            ? "Logging in..."
+                            : "Login"}
 
-            </form>
+                    </button>
 
-            {error && (
-                <p style={{ color: "red" }}>
-                    {error}
+                </form>
+
+
+                <p>
+                    Don't have an account?{" "}
+
+                    <Link to="/register">
+                        Register
+                    </Link>
                 </p>
-            )}
+
+            </div>
 
         </div>
     );

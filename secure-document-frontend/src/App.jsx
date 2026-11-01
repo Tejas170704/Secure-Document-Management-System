@@ -1,49 +1,133 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import MyDocuments from "./pages/MyDocuments";
+import SharedDocuments from "./pages/SharedDocuments";
+import Converter from "./pages/Converter";
+import AdminDashboard from "./pages/AdminDashboard";
+import NotFound from "./pages/NotFound";
+import UploadDocument from "./pages/UploadDocument";
+import DocumentDetails from "./pages/DocumentDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastProvider } from "./context/ToastContext";
 
 function App() {
 
+    useEffect(() => {
+        const savedTheme =
+            localStorage.getItem("theme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+    }, []);
+
     return (
-        <BrowserRouter>
-
+        <ToastProvider>
             <Routes>
-
-                <Route
-                    path="/"
-                    element={
-                        <h1>
-                            Secure Document Management System
-                        </h1>
-                    }
-                />
-
+                {/* Public Routes */}
                 <Route
                     path="/login"
                     element={<Login />}
                 />
 
                 <Route
+                    path="/register"
+                    element={<Register />}
+                />
+
+                {/* Dashboard */}
+                <Route
                     path="/dashboard"
                     element={
-                        <h1>
-                            User Dashboard
-                        </h1>
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
                     }
                 />
 
+                {/* My Documents */}
+                <Route
+                    path="/documents"
+                    element={
+                        <ProtectedRoute>
+                            <MyDocuments />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Document Converter */}
+                <Route
+                    path="/converter"
+                    element={
+                        <ProtectedRoute>
+                            <Converter />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Upload Document */}
+                <Route
+                    path="/upload"
+                    element={
+                        <ProtectedRoute>
+                            <UploadDocument />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Document Details */}
+                <Route
+                    path="/documents/:id"
+                    element={
+                        <ProtectedRoute>
+                            <DocumentDetails />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Shared Documents */}
+                <Route
+                    path="/shared-documents"
+                    element={
+                        <ProtectedRoute>
+                            <SharedDocuments />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Admin Dashboard */}
                 <Route
                     path="/admin"
                     element={
-                        <h1>
-                            Admin Dashboard
-                        </h1>
+                        <ProtectedRoute adminOnly>
+                            <AdminDashboard />
+                        </ProtectedRoute>
                     }
                 />
 
-            </Routes>
+                {/* Default */}
+                <Route
+                    path="/"
+                    element={
+                        <Navigate
+                            to="/login"
+                            replace
+                        />
+                    }
+                />
 
-        </BrowserRouter>
+                {/* 404 */}
+                <Route
+                    path="*"
+                    element={<NotFound />}
+                />
+            </Routes>
+        </ToastProvider>
     );
 }
 
