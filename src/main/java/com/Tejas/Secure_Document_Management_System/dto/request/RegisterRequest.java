@@ -1,4 +1,4 @@
-package com.tejas.Secure_Document_Management_System.dto.request;
+package com.Tejas.Secure_Document_Management_System.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
